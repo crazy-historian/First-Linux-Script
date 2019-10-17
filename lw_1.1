@@ -1,52 +1,32 @@
 #!/bin/bash
 
-# определение директории назначения
-if [ -f flash_name ]
-then
-echo "Файл с именем флешки существует!"
-	
-	target_dir=$( sed '1q;d' ./flash_name)
-	echo "Из файла прочтен путь: $target_dir"
-else
-	echo "Файл сделался!"
-	touch flash_name
-	flash_file=flash_name
-	echo "Найдите вашу флешку: "
-	df -h    
-	
-	echo "Введите найденную флешку: "
-	read $target_dir
-	echo "Укажите целевую директорию:"
-	read target_dir
-	echo "Вы ввели конечную директорию: $target_dir"
-	echo "$target_dir" > "$flash_file"
-	
-fi
+# вторая версия скрипта
+# $1 - исходная директория, $2 - директория назначения
 
+# проверка переданных аргументов
 
-# проверка полученного файла с директориями
-echo "Проверка полученного файла $1"          
-if [ -f $1 ]
+if [ -d $1 ] && [ -d $2 ]
 then
-echo "C файлом все впорядке!"
-	
-elif [ -s $1 ]
-	then
-	echo "Файл не пустой!"
-	
+	echo "Директории существуют."
 else 
-	echo "С файлом что-то не так!"
+	echo "Одна из переданных директорий не существует."
 	exit 1
-fi
+fi 
 
-FILE=$1
-
-while read line
+# проверка и копирование файлов
+for file in $1/*
 do
-echo "Исходная директория: $line"
-for file in $(find $line -type f  -mmin -60)
-do
-echo "$file -- недавно обновленный файл"
-cp $file $target_dir
+	echo $(basename $file)
+	# если файла нет на флешке
+	if [ ! -f $2/$(basename $file) ]
+	then 
+		echo "Файл нет на флешке, копирование..."
+	else 
+		echo "Файл есть на флешке."
+	fi
+	
 done
-done < $FILE
+
+
+
+
