@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# определение директории назначения
+if [ -f flash_name ]
+then
+echo "Файл с именем флешки существует!"
+	
+	target_dir=$( sed '1q;d' ./flash_name)
+	echo "Из файла прочтен путь: $target_dir"
+else
+	echo "Файл сделался!"
+	touch flash_name
+	flash_file=flash_name
+	echo "Найдите вашу флешку: "
+	df -h    
+	
+	echo "Введите найденную флешку: "
+	read $target_dir
+	echo "Укажите целевую директорию:"
+	read target_dir
+	echo "Вы ввели конечную директорию: $target_dir"
+	echo "$target_dir" > "$flash_file"
+	
+fi
+
+target_dir=/media/chistorian/D48E-C69C/НОВОЕ
+# проверка полученного файла с директориями
+echo "Проверка полученного файла $1"          
+if [ -f $1 ]
+then
+echo "C файлом все впорядке!"
+	
+elif [ -s $1 ]
+	then
+	echo "Файл не пустой!"
+	
+else 
+	echo "С файлом что-то не так!"
+	exit 1
+fi
+
+FILE=$1
+
+while read line
+do
+echo "Исходная директория: $line"
+for file in $(find $line -type f  -mmin -60)
+do
+echo "$file -- недавно обновленный файл"
+cp $file $target_dir
+done
+done < $FILE
